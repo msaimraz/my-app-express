@@ -1,40 +1,38 @@
 const express = require('express')
 const app = express()
 const port = 3000
+app.set('view engine', 'ejs')
 
 var fs = require('fs')
 const path = require('path')
-const dataFilePath = path.join(__dirname, 'data.json')
+const dataFilePath = path.join(__dirname, 'data.txt')
 
 app.get('/', (req, res) => {
-    res.write('Hello World............................!')
-    res.end()
-})
-
-app.get('/signup', function (req, res) {
-    res.sendFile(path.join(__dirname, '/signup.html'));
-    console.log(req.body)
+    console.warn(req.body);
+    res.render('Home')
 });
-
-app.post('/home', function (req, res) {
-    let data = ''
-    res.sendFile(path.join(__dirname, '/home.html'));
+app.post("/dashboard", (req, res) => {
+    let data ='';
+    res.render('Dashboard')
     req.on('data', (chunk) => {
         data += chunk
     });
     req.on('end', () => {
-        fs.readFile(dataFilePath , 'utf8' , (err , oldData)=>{
+        fs.readFile(dataFilePath, 'utf8', (err, oldData) => {
             let newData = oldData + '\n' + data
-            fs.writeFile(dataFilePath , newData , ()=>{
-                console.log('saved')
+            fs.writeFile(dataFilePath, newData, () => {
             })
         })
         console.log(data)
     })
 });
+app.get("/profile/:name", (req, res) => {
+    console.warn(req.params.name);
+    res.render('Profile', { name: req.params.name })
+});
 
 app.get('*', (req, res) => {
-    res.sendFile(path.join(__dirname, '/notFound.html'))
+    res.render('Error')
 })
 
 app.listen(process.env.PORT || 3000, () => {
